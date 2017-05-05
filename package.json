@@ -1,0 +1,27 @@
+{
+  "name": "oada-lib-arangodb",
+  "version": "0.0.1",
+  "description": "All OADA Arango interface code in one place.",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run test"
+  },
+  "contributors": [
+    "Andrew Balmos <andrew@balmos.org> (https://github.com/abalmos)"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OADA/oada-lib-arangodb.git"
+  },
+  "keywords": [
+    "oada",
+    "arangodb",
+    "lib"
+  ],
+  "author": "Aaron Ault <aultac@gmail.com> (https://github.com/aultac)",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/OADA/oada-lib-arangodb/issues"
+  },
+  "homepage": "https://github.com/OADA/oada-lib-arangodb#readme"
+}
