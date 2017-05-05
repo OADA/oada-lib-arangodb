@@ -17,40 +17,18 @@
 var path = require('path');
 var fs = require('fs');
 
-/*
-    graphNode {
-      resourceId: <id of resource>
-      isResource: true
-    }
-
-    resource {
-      _id: <id of resource (me)>
-      _rev:
-      _meta: {
-        _id: <id of meta resource (meta:<id of this resource>)>
-        _rev:
-      }
-    }
-
-    edge {
-      _to: <id of graphNode B>
-      _from: <id of graphNode A>
-      name: <key name in resource for link>
-    }
-*/
-
 module.exports = {
   isTest: false, // set to true and random database will be created for you
   connectionString: 'http://arangodb:8529',
   database: 'oada-ref-auth',
   collections: {
-    users: 'users',
-    clients: 'clients',
-    tokens: 'tokens',
-    codes: 'codes',
-    resources: 'resources',
-    graphNodes: 'graphNodes',
-    edges: 'edges'
+         users: { name: 'users',      indexes: [ 'username' ], },
+       clients: { name: 'clients',    indexes: [ 'clientId' ], },
+        tokens: { name: 'tokens',     indexes: [ 'token'    ], },
+         codes: { name: 'codes',      indexes: [ 'code'     ], },
+     resources: { name: 'resources',  indexes: [ ], },
+    graphNodes: { name: 'graphNodes', indexes: [ ], },
+         edges: { name: 'edges',      indexes: [ ], },
   },
   init:
     users: [
