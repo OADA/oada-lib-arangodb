@@ -1,7 +1,13 @@
 'use strict';
 
+const Promise = require('bluebird');
+const arangojs = require('arangojs');
 const config = require('./config');
-const db = require('arangojs')(config.get('arangodb:connectionString'));
+
+const db = arangojs({
+  url: config.get('arangodb:connectionString'),
+  promise: Promise
+});
 
 if (config.get('isTest')) {
   config.set('arangodb:database', 'oada-test');

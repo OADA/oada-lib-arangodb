@@ -1,7 +1,6 @@
 const config = require('../config');
 const db = require('../db.js');
 const aql = require('arangojs').aql;
-const resources = require('./resources');
 const bcrypt = require('bcryptjs');
 const Promise = require('bluebird');
 
@@ -19,9 +18,11 @@ const Promise = require('bluebird');
   }
 */
 
+
 function findById(id) {
   return db
-    .query(aql`FROM DOCUMENT(${config.get('arango:collections:codes')}/${id})`)
+    .collection(config.get('arangodb:collections:users:name'))
+    .document(id)
     .then((user) => {
       user._id = user._key;
 
@@ -31,7 +32,26 @@ function findById(id) {
 }
 
 function findByUsername(username) {
+  return db.query(aql`
+      FOR u IN ${db.collection(config.get('arangodb:collections:users:name'))}
+      FILTER u.username == ${username}
+      RETURN u`
+    )
+    .call('next')
+    .then((user) => {
+      user._id = user._key;
 
+      return user;
+    })
+    .catch({code: 404}, () => null);
+}
+
+function findByUsernamePassword(username, password) {
+  return findByUsername(username)
+    .then((user) => {
+      return bcrypt.compare(password, user.password)
+        .then((valid) => valid ? user : null)
+    });
 }
 
 function create(u) {
@@ -56,5 +76,6 @@ function create(u) {
 module.exports = {
   findById,
   findByUsername,
+  findByUsernamePassword,
   create: create,
 };

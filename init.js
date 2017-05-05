@@ -34,9 +34,9 @@ module.exports = {
       debug('Database '+dbname+' does not exist.  Creating...');
       return db.createDatabase(dbname)
       .then(() => debug('Now '+dbname+' database exists'));
-    
-    
-    
+
+
+
     //---------------------------------------------------------------------
     // Use that database, then check that all the collections exist
     }).then(() => {
@@ -52,8 +52,8 @@ module.exports = {
         return db.collection(c.name).create()
         .then(() => debug('Collection '+c.name+' has been created'));
       });
-    
-    
+
+
     //---------------------------------------------------------------------
     // Now check if the proper indexes exist on each collection:
     }).return(colsarr)
@@ -69,7 +69,7 @@ module.exports = {
         });
       })
 
-    
+
     //----------------------------------------------------------------------
     // Finally, insert default users if they want some:
     ).then(() => (defaultusers || []))
@@ -107,7 +107,7 @@ module.exports = {
 
 //-----------------------------------------------------------------------
 /* examples of what's in the database:
- 
+
     graphNode {
       resourceId: <id of resource>
       isResource: true
@@ -163,7 +163,7 @@ module.exports = {
     "clientId": "jf93caauf3uzud7f308faesf3@provider.oada-dev.com",
     "redirectUri": "http://client.oada-dev.com/redirect"
   }
-  
+
   token {
     "token": "xyz",
     "createTime": 1413831649937,

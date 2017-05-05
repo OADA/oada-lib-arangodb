@@ -2,6 +2,9 @@
 
 module.exports = {
   arango: require('./db.js'),
-  auth: require('./libs/auth.js'),
-  users: require('./libs/users.js')
+  init: require('./init.js'),
+  users: require('./libs/users.js'),
+  clients: require('./libs/clients.js'),
+  codes: require('./libs/codes.js'),
+  tokens: require('./libs/tokens.js')
 }
