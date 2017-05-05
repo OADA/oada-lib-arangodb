@@ -2,6 +2,7 @@ const config = require('../config');
 const db = require('../db.js');
 const resources = require('./resources');
 const bcrypt = require('bcryptjs');
+const Promise = require('bluebird');
 
 /*
   user {
@@ -18,7 +19,9 @@ const bcrypt = require('bcryptjs');
 */
 
 function create(u) {
-  debug('create user was called');
+  return Promise.try(() => {
+    console.log('create user was called');
+  });
   /*
   u = _.cloneDeep(u);
   // Hash the plaintext password:
