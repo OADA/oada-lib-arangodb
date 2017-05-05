@@ -18,6 +18,8 @@ const bcrypt = require('bcryptjs');
 */
 
 function create(u) {
+  debug('create user was called');
+  /*
   u = _.cloneDeep(u);
   // Hash the plaintext password:
   u.password = bcrypt.hashSync(u.password, config.get('init:passwordSalt'));
@@ -28,7 +30,7 @@ function create(u) {
   // 3. Create graph node for meta document and bookmarks resource
   // 4. Create _meta edge for bookmarks -> meta
   // 5. Create user with proper bookmarksid
-
+*/
 }
 
 

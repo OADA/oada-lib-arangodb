@@ -13,6 +13,8 @@ const debug = require('debug')('resources');
 //   ...other content...
 // }
 function create(r) {
+  debug('create resources called');
+/*
   if (!r._id) { 
     debug('r._id required, but not given.');
     throw new Error({ code: 'MISSING_ID'});
@@ -25,7 +27,7 @@ function create(r) {
   if (r._rev) delete r._rev;
 
   // 1. create meta document
-
+*/
 }
 
 module.exports = {
