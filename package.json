@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "init": "node init.js",
-    "test": "mocha test"
+    "test": "mocha"
   },
   "contributors": [
     "Andrew Balmos <andrew@balmos.org> (https://github.com/abalmos)"
@@ -30,6 +30,7 @@
     "bcryptjs": "^2.4.3",
     "bluebird": "^3.5.0",
     "debug": "^2.6.6",
-    "lodash": "^4.17.4"
+    "lodash": "^4.17.4",
+    "mocha": "^3.3.0"
   }
 }

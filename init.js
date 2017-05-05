@@ -14,63 +14,79 @@ const dbname = config.get('database');
 const cols = config.get('collections');
 const colnames = _.values(cols);
 
-debug('Checking if database exists');
-//---------------------------------------------------------------------
-// Start the show: Figure out if the database exists: if not, make it
-return db.get()
-.then(info => db.listDatabases())
-.then(dbs => {
-  dbs = _.filter(dbs, d => d === dbname);
-  if (dbs.length > 0) return debug('database '+dbname+' exists');
-  debug('Database '+dbname+' does not exist.  Creating...');
-  return db.createDatabase(dbname)
-  .then(() => debug('Now '+dbname+' database exists'));
+module.exports = {
+  run: () => {
+    debug('Checking if database exists');
+    //---------------------------------------------------------------------
+    // Start the show: Figure out if the database exists: if not, make it
+    return db.get()
+    .then(info => db.listDatabases())
+    .then(dbs => {
+      dbs = _.filter(dbs, d => d === dbname);
+      if (dbs.length > 0) return debug('database '+dbname+' exists');
+      debug('Database '+dbname+' does not exist.  Creating...');
+      return db.createDatabase(dbname)
+      .then(() => debug('Now '+dbname+' database exists'));
+    
+    
+    
+    //---------------------------------------------------------------------
+    // Use that database, then check that all the collections exist
+    }).then(() => {
+      db.useDatabase(dbname);
+      return db.listCollections();
+    }).then(dbcols => {
+      return Promise.each(colnames, c => {
+        if (_.find(dbcols,d => d.name===c)) {
+          return debug('Collection '+c+' exists');
+        }
+        return db.collection(c).create()
+        .then(() => debug('Collection '+c+' has been created'));
+      });
+    
+    
+    //---------------------------------------------------------------------
+    // Now check if the proper indexes exist on each collection:
+    }).then(() => Promise.return(indexes)) // Convert to bluebird promise for map
+    .map(ind => db.collection(ind.collection).indexes())
+    .map((dbindexes,i) => {
+      // dbindexes looks like [ { fields: [ 'token' ], sparse: true, unique: true },... ]
+      const index = indexes[i]; // { collection: 'tokens', index: 'index' }
+      const hasindex = _.find(dbindexes, i => 
+        _.includes(i.fields,index.index) && i.sparse && i.unique
+      );
+      if (hasindex) return debug('Index '+index.index+' exists on collection '+index.collection);
+      return db.collection(index.name) // collection name
+      .createHashIndex(index.index,{unique: true, sparse: true})
+      .then(() => debug('Created '+index.index+' index on '+index.collection));
+    
+    
+    //----------------------------------------------------------------------
+    // Finally, insert default users if they want some:
+    }).then(() => defaultusers || [])
+    .map(u => {
+      return db.collection('users').firstExample({ username: u.username })
+      .then(() => debug('User '+u.username+' exists'))
+      .catch(err => {
+        debug('User +'u.username+' does not exist.  Creating...');
+        return users.create(u)
+        .then(debug('User '+u.username+' created'));
+      })
+    });
+  }),
 
-
-
-//---------------------------------------------------------------------
-// Use that database, then check that all the collections exist
-}).then(() => {
-  db.useDatabase(dbname);
-  return db.listCollections();
-}).then(dbcols => {
-  return Promise.each(colnames, c => {
-    if (_.find(dbcols,d => d.name===c)) {
-      return debug('Collection '+c+' exists');
+  // cleanup will delete the test database if in test mode
+  cleanup: () => {
+    if (!config.get('isTest')) {
+      throw new Error('Cleanup called, but isTest is not true!  Cleanup only deletes the database when testing.');
     }
-    return db.collection(c).create()
-    .then(() => debug('Collection '+c+' has been created'));
-  });
+    db.useDatabase('_system'); // arango only lets you drop databases from _system
+    debug('Cleaning up by dropping test database '+config.get('database');
+    return db.dropDatabase(config.get('database'));
+    .then(() => debug('Database '+config.get('database')+' dropped successfully');
+  }
 
-
-//---------------------------------------------------------------------
-// Now check if the proper indexes exist on each collection:
-}).then(() => Promise.return(indexes)) // Convert to bluebird promise for map
-.map(ind => db.collection(ind.collection).indexes())
-.map((dbindexes,i) => {
-  // dbindexes looks like [ { fields: [ 'token' ], sparse: true, unique: true },... ]
-  const index = indexes[i]; // { collection: 'tokens', index: 'index' }
-  const hasindex = _.find(dbindexes, i => 
-    _.includes(i.fields,index.index) && i.sparse && i.unique
-  );
-  if (hasindex) return debug('Index '+index.index+' exists on collection '+index.collection);
-  return db.collection(index.name) // collection name
-  .createHashIndex(index.index,{unique: true, sparse: true})
-  .then(() => debug('Created '+index.index+' index on '+index.collection));
-
-
-//----------------------------------------------------------------------
-// Finally, insert default users if they want some:
-}).then(() => defaultusers || [])
-.map(u => {
-  return db.collection('users').firstExample({ username: u.username })
-  .then(() => debug('User '+u.username+' exists'))
-  .catch(err => {
-    debug('User +'u.username+' does not exist.  Creating...');
-    return users.create(u)
-    .then(debug('User '+u.username+' created'));
-  })
-
+});
 
 //-----------------------------------------------------------------------
 /* examples of what's in the database:
