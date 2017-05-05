@@ -2,7 +2,9 @@
 
 const config = require('../config');
 const arango = require('arangojs');
-const expect = require('chai').expect;
+const chai = require('chai');
+chai.use(require('chai-as-promised'));
+const expect = chai.expect;
 const _ = require('lodash');
 const Promise = require('bluebird');
 
@@ -57,6 +59,22 @@ describe('init', () => {
           expect(hasindex).to.equal(true);
         });
       });
+    });
+  });
+
+  it('should have created any requested default users', () => {
+    db.useDatabase(dbname);
+    const collection = db.collection(config.get('arangodb:collections:users').name);
+    const us = config.get('arangodb:init:users');
+    if (!_.isArray(us)) return expect(true).to.equal(true); // no requested default users
+    return Promise.map(us, u => {
+      return collection.firstExample({username: u})
+      .then(result => {
+        expect(result.username).to.equal(u.username);
+      }).catch(err => {
+        const str = 'User: '+u.username+', err: ';
+        expect(str+err).to.equal(str); // this wonky code is so it at least prints out the username
+      })
     });
   });
 

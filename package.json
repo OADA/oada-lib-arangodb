@@ -30,6 +30,7 @@
     "bcryptjs": "^2.4.3",
     "bluebird": "^3.5.0",
     "chai": "^3.5.0",
+    "chai-as-promised": "^6.0.0",
     "debug": "^2.6.6",
     "lodash": "^4.17.4",
     "mocha": "^3.3.0",
