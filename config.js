@@ -23,7 +23,7 @@ nconf.use('memory');
 
 // Order of precedence: argv, env, config file, defaults
 nconf.argv();
-nconf.env({whitelist: 'config-arango'});
+nconf.env('_');
 
 // Load an external (optional) config file from command-line args, but
 // only if we're running standalone and not included as a library.

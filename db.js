@@ -1,7 +1,12 @@
 'use strict';
 
 const config = require('./config');
+const db = require('arangojs')(config.get('arangodb:connectionString'));
 
-const db = require('arangojs')(config.get('connectionString'));
+if (config.get('isTest')) {
+  config.set('arangodb:database', 'oada-test');
+}
 
-module.exports = db.useDatabase(config.get('database'));
+db.useDatabase(config.get('arangodb:database'));
+
+module.exports = db;

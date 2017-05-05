@@ -1,5 +1,6 @@
 const config = require('../config');
 const db = require('../db.js');
+const aql = require('arangojs').aql;
 const resources = require('./resources');
 const bcrypt = require('bcryptjs');
 
@@ -16,6 +17,21 @@ const bcrypt = require('bcryptjs');
     "email": "frank@openag.io"
   }
 */
+
+function findById(id) {
+  return db
+    .query(aql`FROM DOCUMENT(${config.get('arango:collections:codes')}/${id})`)
+    .then((user) => {
+      user._id = user._key;
+
+      return user;
+    })
+    .catch({code: 404}, () => null);
+}
+
+function findByUsernae(username) {
+
+}
 
 function create(u) {
   debug('create user was called');
@@ -35,5 +51,7 @@ function create(u) {
 
 
 module.exports = {
+  findById,
+  findByUsername,
   create: create,
 };

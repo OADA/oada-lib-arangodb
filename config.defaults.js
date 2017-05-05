@@ -19,26 +19,28 @@ var fs = require('fs');
 
 module.exports = {
   isTest: false, // set to true and random database will be created for you
-  connectionString: 'http://arangodb:8529',
-  database: 'oada-ref-auth',
-  collections: {
-         users: { name: 'users',      indexes: [ 'username' ], },
-       clients: { name: 'clients',    indexes: [ 'clientId' ], },
-        tokens: { name: 'tokens',     indexes: [ 'token'    ], },
-         codes: { name: 'codes',      indexes: [ 'code'     ], },
-     resources: { name: 'resources',  indexes: [ ], },
-    graphNodes: { name: 'graphNodes', indexes: [ ], },
-         edges: { name: 'edges',      indexes: [ ], },
-  },
-  init: {
-    // NOTE: passwordSalt HAS to match the one in auth
-    passwordSalt: '$2a$10$l64QftVz6.7KR5BXNc29IO',
-    users: [
-      {   username: "frank",           password: "test",
-              name: "Farmer Frank", family_name: "Frank",
-        given_name: "Farmer",       middle_name: "",
-          nickname: "Frankie",            email: "frank@openag.io",
-      },
-    ],
-  },
+  arangodb: {
+    connectionString: 'http://arangodb:8529',
+    database: 'oada-ref-auth',
+    collections: {
+           users: { name: 'users',      indexes: [ 'username' ], },
+         clients: { name: 'clients',    indexes: [ 'clientId' ], },
+          tokens: { name: 'tokens',     indexes: [ 'token'    ], },
+           codes: { name: 'codes',      indexes: [ 'code'     ], },
+       resources: { name: 'resources',  indexes: [ ], },
+      graphNodes: { name: 'graphNodes', indexes: [ ], },
+           edges: { name: 'edges',      indexes: [ ], },
+      init: {
+        // NOTE: passwordSalt HAS to match the one in auth
+        passwordSalt: '$2a$10$l64QftVz6.7KR5BXNc29IO',
+        users: [
+          {   username: "frank",           password: "test",
+                  name: "Farmer Frank", family_name: "Frank",
+            given_name: "Farmer",       middle_name: "",
+              nickname: "Frankie",            email: "frank@openag.io",
+          },
+        ]
+      }
+    }
+  }
 };
