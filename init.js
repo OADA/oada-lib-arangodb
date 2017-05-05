@@ -1,12 +1,15 @@
 // This file exports a function which can be used to initialize the database
 // with `npm run init`.
 
+const config = require('./config');
 const debug = require('debug')('arango/init');
 const Database  = require('arangojs').Database;
 const _ = require('lodash');
 const Promise = require('bluebird');
 const users = require('./libs/users.js');
-const db = require('../db.js');
+
+// Can't use db.js's db 
+const db = require('arangojs')(config.get('connectionString'));
 
 //------------------------------------------------------------
 // First setup some shorter variable names:
@@ -47,7 +50,7 @@ module.exports = {
     
     //---------------------------------------------------------------------
     // Now check if the proper indexes exist on each collection:
-    }).then(() => Promise.return(indexes)) // Convert to bluebird promise for map
+    }).then(() => Promise.try(() => indexes)) // Convert to bluebird promise for map
     .map(ind => db.collection(ind.collection).indexes())
     .map((dbindexes,i) => {
       // dbindexes looks like [ { fields: [ 'token' ], sparse: true, unique: true },... ]
@@ -68,12 +71,12 @@ module.exports = {
       return db.collection('users').firstExample({ username: u.username })
       .then(() => debug('User '+u.username+' exists'))
       .catch(err => {
-        debug('User +'u.username+' does not exist.  Creating...');
+        debug('User '+u.username+' does not exist.  Creating...');
         return users.create(u)
         .then(debug('User '+u.username+' created'));
       })
     });
-  }),
+  },
 
   // cleanup will delete the test database if in test mode
   cleanup: () => {
@@ -81,12 +84,12 @@ module.exports = {
       throw new Error('Cleanup called, but isTest is not true!  Cleanup only deletes the database when testing.');
     }
     db.useDatabase('_system'); // arango only lets you drop databases from _system
-    debug('Cleaning up by dropping test database '+config.get('database');
-    return db.dropDatabase(config.get('database'));
-    .then(() => debug('Database '+config.get('database')+' dropped successfully');
+    debug('Cleaning up by dropping test database '+config.get('database'));
+    return db.dropDatabase(config.get('database'))
+    .then(() => debug('Database '+config.get('database')+' dropped successfully'));
   }
 
-});
+};
 
 //-----------------------------------------------------------------------
 /* examples of what's in the database:

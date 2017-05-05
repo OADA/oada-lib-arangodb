@@ -9,8 +9,8 @@ config.set('database', dbname);
 
 const init = require('../init');
 
-const db = new arango.Database(config.get('connectionString');
-db.use(config.get('database'));
+const db = new arango.Database(config.get('connectionString'));
+db.useDatabase(config.get('database'));
 
 describe('init', () => {
   before(() => {
@@ -23,7 +23,6 @@ describe('init', () => {
     return db.listDatabases()
     // Expect one of the database names returned to be the database name
     .then(dbs => expect(_.find(dbs, d => d === dbname)).to.equal(dbname));
-    })
   });
 
   // check collections
