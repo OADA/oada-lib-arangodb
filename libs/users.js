@@ -30,7 +30,7 @@ function findById(id) {
     .catch({code: 404}, () => null);
 }
 
-function findByUsernae(username) {
+function findByUsername(username) {
 
 }
 

@@ -4,14 +4,16 @@ const config = require('../config');
 const arango = require('arangojs');
 const expect = require('chai').expect;
 const _ = require('lodash');
+const Promise = require('bluebird');
 
-const dbname = 'lib-arango-test';
 config.set('isTest', true);
-config.set('arangodb:database', dbname);
-
 const init = require('../init');
+const dbname = config.get('arangodb:database');
 
-const db = new arango.Database(config.get('arangodb:connectionString'));
+const db = new arango.Database({
+  promise: Promise,
+  url: config.get('arangodb:connectionString'),
+});
 
 describe('init', () => {
   before(() => {
@@ -21,7 +23,7 @@ describe('init', () => {
     });
   });
 
-  it('should have created test database lib-arangodb-test', () => {
+  it('should have created test database'+dbname, () => {
     db.useDatabase('_system');
     return db.listDatabases()
     // Expect one of the database names returned to be the database name
@@ -45,11 +47,15 @@ describe('init', () => {
 
   it('should have created all the indexes on the collections', () => {
     db.useDatabase(dbname);
-    return Promise.map(config.get('arangodb:collections'), c => {
+    const colsarr = _.values(config.get('arangodb:collections'));
+    return Promise.map(colsarr, c => {
       // dbindexes looks like [ { fields: [ 'token' ], sparse: true, unique: true },... ]
       return db.collection(c.name).indexes()
       .then(dbindexes => { 
-        
+        return _.map(c.indexes, ci => { // for each index in collection, check if exists
+          const hasindex = !!_.find(dbindexes, dbi => _.includes(dbi.fields,ci));
+          expect(hasindex).to.equal(true);
+        });
       });
     });
   });

@@ -30,17 +30,17 @@ module.exports = {
        resources: { name: 'resources',  indexes: [ ], },
       graphNodes: { name: 'graphNodes', indexes: [ ], },
            edges: { name: 'edges',      indexes: [ ], },
-      init: {
-        // NOTE: passwordSalt HAS to match the one in auth
-        passwordSalt: '$2a$10$l64QftVz6.7KR5BXNc29IO',
-        users: [
-          {   username: "frank",           password: "test",
-                  name: "Farmer Frank", family_name: "Frank",
-            given_name: "Farmer",       middle_name: "",
-              nickname: "Frankie",            email: "frank@openag.io",
-          },
-        ]
-      }
+    },
+    init: {
+      // NOTE: passwordSalt HAS to match the one in auth
+      passwordSalt: '$2a$10$l64QftVz6.7KR5BXNc29IO',
+      users: [
+        {   username: "frank",           password: "test",
+                name: "Farmer Frank", family_name: "Frank",
+          given_name: "Farmer",       middle_name: "",
+            nickname: "Frankie",            email: "frank@openag.io",
+        },
+      ]
     }
   }
 };
