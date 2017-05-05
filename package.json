@@ -4,7 +4,8 @@
   "description": "All OADA Arango interface code in one place.",
   "main": "index.js",
   "scripts": {
-    "test": "npm run test"
+    "init": "node init.js",
+    "test": "mocha test"
   },
   "contributors": [
     "Andrew Balmos <andrew@balmos.org> (https://github.com/abalmos)"
