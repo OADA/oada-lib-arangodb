@@ -3,6 +3,7 @@ const db = require('../db.js');
 const aql = require('arangojs').aql;
 const resources = require('./resources');
 const bcrypt = require('bcryptjs');
+const Promise = require('bluebird');
 
 /*
   user {
@@ -34,7 +35,9 @@ function findByUsernae(username) {
 }
 
 function create(u) {
-  debug('create user was called');
+  return Promise.try(() => {
+    console.log('create user was called');
+  });
   /*
   u = _.cloneDeep(u);
   // Hash the plaintext password:
