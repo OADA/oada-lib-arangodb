@@ -26,11 +26,20 @@ module.exports = {
   run: () => {
     debug('Checking if database exists');
     //---------------------------------------------------------------------
-    // Start the show: Figure out if the database exists: if not, make it
+    // Start the show: Figure out if the database exists
     return db.listDatabases()
     .then(dbs => {
       dbs = _.filter(dbs, d => d === dbname);
-      if (dbs.length > 0) return debug('database '+dbname+' exists');
+      if (dbs.length > 0) {
+        if (config.get('isTest')) {
+          debug('isTest is true, dropping database and recreating');
+          db.useDatabase('_system');
+          return db.dropDatabase(dbname)
+          .then(() => db.createDatabase(dbname))
+        }
+        // otherwise, not test so don't drop database
+        return debug('database '+dbname+' exists');
+      }
       debug('Database '+dbname+' does not exist.  Creating...');
       return db.createDatabase(dbname)
       .then(() => debug('Now '+dbname+' database exists'));
