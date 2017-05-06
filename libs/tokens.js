@@ -14,6 +14,10 @@ function findByToken(token) {
     )
     .call('next')
     .then((t) => {
+      if (!t) {
+        return null;
+      }
+
       t._id = t._key;
 
       return users.findById(t.user._id)
@@ -22,8 +26,7 @@ function findByToken(token) {
 
           return t;
         });
-    })
-    .catch({token: 404}, () => null);
+    });
 }
 
 function save(token) {

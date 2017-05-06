@@ -14,6 +14,10 @@ function findByCode(code) {
     )
     .call('next')
     .then((c) => {
+      if (!c) {
+        return null;
+      }
+
       c._id = c._key;
 
       return users.findById(c.code)
@@ -21,8 +25,7 @@ function findByCode(code) {
           c.user = user;
           return c;
         });
-    })
-    .catch({code: 404}, () => null);
+    });
 }
 
 function save(code) {

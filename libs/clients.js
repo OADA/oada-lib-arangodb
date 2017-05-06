@@ -12,11 +12,14 @@ function findById(id) {
     )
     .call('next')
     .then((client) => {
+      if(!client) {
+        return null;
+      }
+
       client._id = client._key;
 
       return client;
-    })
-    .catch({code: 404}, () => null);
+    });
 }
 
 function save(client) {

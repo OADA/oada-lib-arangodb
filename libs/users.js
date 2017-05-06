@@ -39,11 +39,14 @@ function findByUsername(username) {
     )
     .call('next')
     .then((user) => {
+      if (!user) {
+        return null;
+      }
+
       user._id = user._key;
 
       return user;
-    })
-    .catch({code: 404}, () => null);
+    });
 }
 
 function findByUsernamePassword(username, password) {
