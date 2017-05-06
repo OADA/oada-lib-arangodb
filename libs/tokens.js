@@ -16,9 +16,10 @@ function findByToken(token) {
     .then((t) => {
       t._id = t._key;
 
-      return users.findById(t.token)
+      return users.findById(t.user._id)
         .then((user) => {
           t.user = user;
+
           return t;
         });
     })
