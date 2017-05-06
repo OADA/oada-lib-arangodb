@@ -21,6 +21,7 @@ var debug = require('debug')('info');
 
 nconf.use('memory');
 
+/*
 // Order of precedence: argv, env, config file, defaults
 nconf.argv();
 nconf.env('_');
@@ -41,6 +42,7 @@ if (config) {
     nconf.use('literal', require(config));
   }
 }
+*/
 
 nconf.defaults(require('./config.defaults.js'));
 
