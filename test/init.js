@@ -83,21 +83,18 @@ describe('init', () => {
     }).finally(init.cleanup)
   });
 
-  it('should create any requested default users', () => {
+  it('should create any requested default data', () => {
     return init.run()
     .then(() => {
       db.useDatabase(dbname);
-      const collection = db.collection(config.get('arangodb:collections:users').name);
-      const us = config.get('arangodb:init:users');
-      if (!_.isArray(us)) return expect(true).to.equal(true); // no requested default users
-      return Promise.map(us, u => {
-        return collection.firstExample({username: u})
-        .then(result => {
-          expect(result.username).to.equal(u.username);
-        }).catch(err => {
-          const str = 'User: '+u.username+', err: ';
-          expect(str+err).to.equal(str); // this wonky code is so it at least prints out the username
-        })
+      const defaultdata = _.mapValues(config.get('arangodb:init:defaultData'), p => require('../'+p));
+      return Promise.each(_.keys(defaultdata), colname => {
+        const data = defaultdata[colname];
+        return Promise.each(data, doc => {
+          if (colname === 'users') delete doc.password;  // don't bother to check hashed password
+          return expect(_.keys(db.collection(colname).firstExample(doc)))
+                       .to.eventually.include(_.keys(doc));
+        });
       });
     }).finally(init.cleanup);
   });

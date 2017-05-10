@@ -20,7 +20,6 @@ db.useDatabase('_system');
 const dbname = config.get('arangodb:database');
 const cols = config.get('arangodb:collections');
 const colsarr = _.values(cols);
-const defaultusers = config.get('arangodb:init:users');
 
 module.exports = {
   run: () => {
@@ -58,8 +57,13 @@ module.exports = {
         if (_.find(dbcols,d => d.name===c.name)) {
           return debug('Collection '+c.name+' exists');
         }
-        return db.collection(c.name).create()
-        .then(() => debug('Collection '+c.name+' has been created'));
+        if (c.edgeCollection) {
+          return db.edgeCollection(c.name).create()
+          .then(() => debug('Edge collection '+c.name+' has been created'));
+        } else {
+          return db.collection(c.name).create()
+          .then(() => debug('Document collection '+c.name+' has been created'));
+        }
       });
 
 
@@ -72,23 +76,38 @@ module.exports = {
           if (_.find(dbindexes, dbi => _.isEqual(dbi.fields, [ ci ]))) {
             return debug('Index '+ci+' exists on collection '+c.name);
           }
-          // Otherwise, create the collection
-          return db.collection(c.name).createHashIndex(ci,{unique: true, sparse: true})
-          .then(() => debug('Created '+ci+' index on '+c.name));
+          // Otherwise, create the index
+          if (c.edgeCollection) {
+            return db.edgeCollection(c.name).createHashIndex(ci,{unique: true, sparse: true})
+            .then(() => debug('Created '+ci+' index on '+c.name));
+          } else {
+            return db.collection(c.name).createHashIndex(ci,{unique: true, sparse: true})
+            .then(() => debug('Created '+ci+' index on '+c.name));
+          }
         });
       })
 
 
     //----------------------------------------------------------------------
-    // Finally, insert default users if they want some:
-    ).then(() => (defaultusers || []))
-    .map(u => {
-      return db.collection('users').firstExample({ username: u.username })
-      .then(() => debug('User '+u.username+' exists'))
-      .catch(err => {
-        debug('User '+u.username+' does not exist.  Creating...');
-        return users.create(u)
-        .then(debug('User '+u.username+' created'));
+    // Finally, import default data if they want some:
+    ).then(() => _.keys(config.get('arangodb:collections')))
+    .map(colname => {
+      const colinfo = config.get('arangodb:collections')[colname];
+      if (typeof colinfo.defaults !== 'string') return; // nothing to import for this colname
+      const data = require(colinfo.defaults);
+
+      
+      return Promise.map(data, doc => {
+        if (colname === 'users') {
+          doc.password = users.hashPw(doc.password);
+        }
+        return db.collection(colname).document(doc._key)
+        .then(() => debug('Default data document '+doc._key+' already exists on collection '+colname))
+        .catch(err => {
+          debug('Document '+doc._key+' does not exist in collection '+colname+'.  Creating...');
+          return db.collection(colname).save(doc)
+          .then(() => { debug('Document '+doc._key+' successfully creatd in collection '+colname); })
+        });
       })
     }).catch(err => {
       if (err && err.response) {

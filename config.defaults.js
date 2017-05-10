@@ -23,24 +23,18 @@ module.exports = {
     connectionString: 'http://arangodb:8529',
     database: 'oada-ref-auth',
     collections: {
-           users: { name: 'users',      indexes: [ 'username' ], },
-         clients: { name: 'clients',    indexes: [ 'clientId' ], },
-          tokens: { name: 'tokens',     indexes: [ 'token'    ], },
-           codes: { name: 'codes',      indexes: [ 'code'     ], },
-       resources: { name: 'resources',  indexes: [ ], },
-      graphNodes: { name: 'graphNodes', indexes: [ ], },
-           edges: { name: 'edges',      indexes: [ ], },
+           users: { name: 'users',      indexes: [ 'username' ], defaults: './libs/exampledocs/users'      },
+         clients: { name: 'clients',    indexes: [ 'clientId' ], defaults: './libs/exampledocs/clients'    },
+          tokens: { name: 'tokens',     indexes: [ 'token'    ], defaults: './libs/exampledocs/tokens'     },
+           codes: { name: 'codes',      indexes: [ 'code'     ], defaults: './libs/exampledocs/codes'      },
+       resources: { name: 'resources',  indexes: [            ], defaults: './libs/exampledocs/resources'  },
+      graphNodes: { name: 'graphNodes', indexes: [            ], defaults: './libs/exampledocs/graphNodes' },
+           edges: { name: 'edges',      indexes: [ 'name'     ], defaults: './libs/exampledocs/edges',
+                    edgeCollection: true },
     },
     init: {
       // NOTE: passwordSalt HAS to match the one in auth
       passwordSalt: '$2a$10$l64QftVz6.7KR5BXNc29IO',
-      users: [
-        {   username: "frank",           password: "test",
-                name: "Farmer Frank", family_name: "Frank",
-          given_name: "Farmer",       middle_name: "",
-            nickname: "Frankie",            email: "frank@openag.io",
-        },
-      ]
     }
   }
 };

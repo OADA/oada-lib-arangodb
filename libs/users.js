@@ -75,10 +75,15 @@ function create(u) {
 */
 }
 
+function hashPw(pw) {
+  return bcrypt.hashSync(pw, config.get('arangodb:init:passwordSalt'));
+}
+
 
 module.exports = {
   findById,
   findByUsername,
   findByUsernamePassword,
   create: create,
+  hashPw: hashPw,
 };
