@@ -29,7 +29,7 @@ module.exports = {
            codes: { name: 'codes',      indexes: [ 'code'     ], defaults: './libs/exampledocs/codes'      },
        resources: { name: 'resources',  indexes: [            ], defaults: './libs/exampledocs/resources'  },
       graphNodes: { name: 'graphNodes', indexes: [            ], defaults: './libs/exampledocs/graphNodes' },
-           edges: { name: 'edges',      indexes: [ 'name'     ], defaults: './libs/exampledocs/edges',
+           edges: { name: 'edges',      indexes: [ { name: 'name', unique: false } ], defaults: './libs/exampledocs/edges',
                     edgeCollection: true },
     },
     init: {

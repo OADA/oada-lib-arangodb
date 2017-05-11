@@ -65,7 +65,7 @@ describe('init', () => {
     }).finally(init.cleanup)
   });
 
-  it('create all the indexes on the collections', () => {
+  it('should create all the indexes on the collections', () => {
     return init.run()
     .then(() => {
       db.useDatabase(dbname);
@@ -75,7 +75,8 @@ describe('init', () => {
         return db.collection(c.name).indexes()
         .then(dbindexes => { 
           return _.map(c.indexes, ci => { // for each index in collection, check if exists
-            const hasindex = !!_.find(dbindexes, dbi => _.includes(dbi.fields,ci));
+            const indexname = typeof ci === 'string' ? ci : ci.name;
+            const hasindex = !!_.find(dbindexes, dbi => _.includes(dbi.fields,indexname));
             expect(hasindex).to.equal(true);
           });
         });
