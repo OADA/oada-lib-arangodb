@@ -32,7 +32,6 @@ module.exports = [
     name: '_changes',
     versioned: true,
   },
-/*
 
   //--------------------------------------------------------
   // /bookmarks/rocks/rocks-index
@@ -103,6 +102,5 @@ module.exports = [
     name: '_changes',
     versioned: true,
   },
-*/
 
 ];

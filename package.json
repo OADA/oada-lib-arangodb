@@ -1,6 +1,6 @@
 {
   "name": "oada-lib-arangodb",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "All OADA Arango interface code in one place.",
   "main": "index.js",
   "scripts": {
