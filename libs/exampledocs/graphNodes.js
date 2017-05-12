@@ -2,8 +2,8 @@ module.exports = [
   //------------------------------------------------
   // Bookmarks document:
   { 
-    "_key": "default:resource_bookmarks_123",
-    resource_id: 'default:resource_bookmarks_123',
+    "_key": "default:resources_bookmarks_123",
+    resource_id: 'default:resources_bookmarks_123',
     is_resource: true,
     meta_id: "default:meta_bookmarks_123",
   },
