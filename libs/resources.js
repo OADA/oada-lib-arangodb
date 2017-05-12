@@ -170,8 +170,6 @@ function lookupFromUrl(url) {
       bindVars[bindVarB] = urlPiece;
       return `FILTER p.edges[@${bindVarA}].name == @${bindVarB} || p.edges[@${bindVarA}].name == null`
     }).join(' ')
-    console.log(filters)
-    console.log(bindVars)
     let query = `FOR v, e, p IN 0..@value0
         OUTBOUND @value1 
         edges
@@ -183,21 +181,24 @@ function lookupFromUrl(url) {
       let resource_id = ''
       let meta_id = ''
       let path_left = '' 
-      console.log(cursor._result)
-      if (cursor._result.length < 1) return (resource_id, meta_id, path_left)
+      if (cursor._result.length < 1) return ({resource_id, meta_id, path_left})
       let res =_.reduce(cursor._result, (result, value, key) => {
         if (result.vertices.length > value.vertices.length) return result
         return value
       })
-      console.log(res)
       resource_id = res.vertices[res.vertices.length-1].resource_id;
       meta_id = res.vertices[res.vertices.length-1].meta_id;
+      // If the desired url has more pieces than the longest path, the path_left is the extra pieces
       if (res.vertices.length-1 < pieces.length) {
         let extras = pieces.length - (res.vertices.length-1)
         path_left = pointer.compile(pieces.slice(0-extras))
-      } else path_left = res.vertices[res.vertices.length-1].path
+      } else {
+        path_left = res.vertices[res.vertices.length-1].path || ''
+      }
     
       return {resource_id, meta_id, path_left}
+    }).catch((err) => {
+      console.log(err)
     })
   })
 }
