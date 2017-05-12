@@ -15,10 +15,8 @@
 
 'use strict';
 
-const _ = require('lodash');
 const expect = require('chai').expect;
 const Promise = require('bluebird');
-const bcrypt = require('bcryptjs');
 const oadaLib = require('..');
 const config = require('../config');
 
@@ -27,18 +25,10 @@ const config = require('../config');
 const exampleTokens = require('../libs/exampledocs/tokens.js');
 const exampleUsers = require('../libs/exampledocs/users.js');
 
-// To test the token lookup, have to make a test database and populate it
-// with token and user
-let db = oadaLib.arango;
-let cols = config.get('arango:collections');
-let frankid = null;
-let random_connection_id;
-let random_token;
-
 describe('token lib', () => {
   before(() => oadaLib.init.run());
 
-  it('should be able to find the initial test token', () => {
+  it('should find a token', () => {
     const token = exampleTokens[0];
 
     return oadaLib.tokens.findByToken(token.token)
@@ -52,7 +42,7 @@ describe('token lib', () => {
       });
   });
 
-  it('should be able to successfully save a new token', () => {
+  it('should save a token', () => {
     const token = exampleTokens[0];
     const user = exampleUsers[0];
 
