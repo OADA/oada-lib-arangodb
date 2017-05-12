@@ -1,3 +1,4 @@
+'use strict'
 const db = require('../db');
 const debug = require('debug')('resources');
 const _ = require('lodash');
@@ -6,6 +7,12 @@ const uuidV4 = require('uuid/v4');
 const moment = require('moment');
 const aql = require('arangojs').aqlQuery;
 const md5 = require('md5');
+const pointer = require('json-pointer')
+const config = require('../config')
+config.set('isTest', true)
+const resName = config.get('arangodb:collections:resources:name')
+const gnName = config.get('arangodb:collections:graphNodes:name')
+const eName = config.get('arangodb:collections:edges:name')
 
 //----------------------------------------
 // - Create a resource with a given id and content.
@@ -143,6 +150,59 @@ function upsert(req) {
   */
 }
 
+function lookupFromUrl(url) {
+  return Promise.try(() => {
+    let resource = db.collection('resources');
+    let graphNodes = db.collection('graphNodes');
+    let edges = db.collection('edges');
+    let pieces = pointer.parse(url)
+    pieces.splice(0, 1)
+    let bindVars = {
+      value0: pieces.length-1,
+      value1: 'graphNodes/'+pieces[0],
+    }
+    pieces.splice(0, 1)
+  // Create a filter for each segment of the url
+    const filters = pieces.map((urlPiece, i) => {
+      let bindVarA = 'value' + (2+(i*2)).toString()
+      let bindVarB = 'value' + (2+(i*2)+1).toString()
+      bindVars[bindVarA] = i;
+      bindVars[bindVarB] = urlPiece;
+      return `FILTER p.edges[@${bindVarA}].name == @${bindVarB} || p.edges[@${bindVarA}].name == null`
+    }).join(' ')
+    let query = `FOR v, e, p IN 0..@value0
+        OUTBOUND @value1 
+        edges
+        ${filters}
+        RETURN p`
+    return db.query({query, bindVars})
+  // Handle query output
+    .then((cursor) => {
+      let resource_id = ''
+      let meta_id = ''
+      let path_left = '' 
+      if (cursor._result.length < 1) return ({resource_id, meta_id, path_left})
+      let res =_.reduce(cursor._result, (result, value, key) => {
+        if (result.vertices.length > value.vertices.length) return result
+        return value
+      })
+      resource_id = res.vertices[res.vertices.length-1].resource_id;
+      meta_id = res.vertices[res.vertices.length-1].meta_id;
+      // If the desired url has more pieces than the longest path, the path_left is the extra pieces
+      if (res.vertices.length-1 < pieces.length) {
+        let extras = pieces.length - (res.vertices.length-1)
+        path_left = pointer.compile(pieces.slice(0-extras))
+      } else {
+        path_left = res.vertices[res.vertices.length-1].path || ''
+      }
+    
+      return {resource_id, meta_id, path_left}
+    }).catch((err) => {
+      console.log(err)
+    })
+  })
+}
+
 function upsertMeta(req) {
 }
 
@@ -150,5 +210,6 @@ function upsertChanges(req) {
 }
 
 module.exports = {
-  upsert: upsert,
+  upsert,
+  lookupFromUrl,
 };
