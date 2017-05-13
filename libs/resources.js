@@ -213,7 +213,7 @@ function getResource(id, path) {
 
 
   // TODO: PATH IS NOT CORRECTLY ESCAPED. THIS COULD LEAD TO A SECURITY ISSUE
-  return db.query(arangojs.aql`
+  return db.query(aql`
     FOR r IN resources
       FILTER r._key = ${id}
       RETURN r${path}`);
