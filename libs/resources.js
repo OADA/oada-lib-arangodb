@@ -22,7 +22,7 @@ const eName = config.get('arangodb:collections:edges:name')
 // req should look like:
 // {
 //   body: {                        // body is REQUIRED
-//     _id: 'kjf20i3kfl3f2j', 
+//     _id: 'kjf20i3kfl3f2j',
 //     _type: 'application/vnd.oada.bookmarks.1+json',
 //   },
 //   revPrefix: 154,                 // revPrefix is REQUIRED: it's the integer part on the front of the _rev.  Use the offset from Kafka partition.
@@ -50,7 +50,7 @@ function upsert(req) {
     }
 
     // If they gave an _id, move it to _key for arango
-    if (req.body._id) { 
+    if (req.body._id) {
       req.body._key = req.body._id;
       delete req.body._id;
     }
@@ -59,7 +59,7 @@ function upsert(req) {
       debug('req.body._id (oada _id) or req.body._key required, but neither was given.');
       throw new Error({ code: 'MISSING_ID'});
     }
-    if (!req.body._type) { 
+    if (!req.body._type) {
       debug('req.body._type required, but not given.');
       throw new Error({ code: 'MISSING_TYPE'});
     }
@@ -93,9 +93,9 @@ function upsert(req) {
         FOR v,e IN 1..1
           OUTBOUND ${node}
           edges FILTER e.name == '_changes' AND p.edges[1] == null
-          UPDATE 
+          UPDATE
 
-     
+
     } else { // db object is a resource, so 2-hops in the graph
     return db.query(aql`
       FOR v,e,p IN 1..2
@@ -107,10 +107,10 @@ function upsert(req) {
     }
 
     const startnode = graphcol+'/'+req.body._key;
-    // If changing meta doc, post req 
+    // If changing meta doc, post req
 
     //--------------------------------------------------------------------------------------
-    // 1. Need to decide if it already exists or if we need to make it because if it is new, 
+    // 1. Need to decide if it already exists or if we need to make it because if it is new,
     //    we have to create it's meta document, etc.
 
   }).then(res => {
@@ -171,7 +171,7 @@ function lookupFromUrl(url) {
       return `FILTER p.edges[@${bindVarA}].name == @${bindVarB} || p.edges[@${bindVarA}].name == null`
     }).join(' ')
     let query = `FOR v, e, p IN 0..@value0
-        OUTBOUND @value1 
+        OUTBOUND @value1
         edges
         ${filters}
         RETURN p`
@@ -180,7 +180,7 @@ function lookupFromUrl(url) {
     .then((cursor) => {
       let resource_id = ''
       let meta_id = ''
-      let path_left = '' 
+      let path_left = ''
       if (cursor._result.length < 1) return ({resource_id, meta_id, path_left})
       let res =_.reduce(cursor._result, (result, value, key) => {
         if (result.vertices.length > value.vertices.length) return result
@@ -195,12 +195,28 @@ function lookupFromUrl(url) {
       } else {
         path_left = res.vertices[res.vertices.length-1].path || ''
       }
-    
+
       return {resource_id, meta_id, path_left}
     }).catch((err) => {
       console.log(err)
     })
   })
+}
+
+function getResource(id, path) {
+  // TODO: Escaping stuff?
+  path = (path||'')
+    .split('/')
+    .filter(x => !!x)
+    .join('"]["');
+  path = path ? '["' + path + '"]' : '';
+
+
+  // TODO: PATH IS NOT CORRECTLY ESCAPED. THIS COULD LEAD TO A SECURITY ISSUE
+  return db.query(arangojs.aql`
+    FOR r IN resources
+      FILTER r._key = ${id}
+      RETURN r${path}`);
 }
 
 function upsertMeta(req) {
@@ -212,4 +228,5 @@ function upsertChanges(req) {
 module.exports = {
   upsert,
   lookupFromUrl,
+  getResource,
 };
