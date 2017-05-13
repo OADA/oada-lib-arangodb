@@ -38,6 +38,7 @@
     "mocha": "^3.3.0",
     "moment": "^2.18.1",
     "nconf": "^0.8.4",
+    "oada-lib-config": "oada/oada-lib-config",
     "uuid": "^3.0.1"
   }
 }

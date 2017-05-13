@@ -205,18 +205,24 @@ function lookupFromUrl(url) {
 
 function getResource(id, path) {
   // TODO: Escaping stuff?
-  path = (path||'')
+  const parts = (path||'')
     .split('/')
-    .filter(x => !!x)
-    .join('"]["');
-  path = path ? '["' + path + '"]' : '';
+    .filter(x => !!x);
 
+  const bindVars = parts.reduce((b, part, i) => {
+    b[`v${i}`] = part;
+    return b;
+  }, {});
+  bindVars.id = id;
 
-  // TODO: PATH IS NOT CORRECTLY ESCAPED. THIS COULD LEAD TO A SECURITY ISSUE
-  return db.query(aql`
-    FOR r IN resources
-      FILTER r._key = ${id}
-      RETURN r${path}`);
+  const returnPath = parts.reduce((p, part, i) => p.concat(`[@v${i}]`), '');
+
+  return db.query({
+    query: `FOR r IN resources
+        FILTER r._key == @id
+        RETURN r${returnPath}`,
+    bindVars
+  });
 }
 
 function upsertMeta(req) {

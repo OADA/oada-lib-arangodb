@@ -21,7 +21,7 @@ module.exports = {
   isTest: false, // set to true and random database will be created for you
   arangodb: {
     connectionString: 'http://arangodb:8529',
-    database: 'oada-ref-auth',
+    database: 'oada',
     collections: {
            users: { name: 'users',      indexes: [ 'username' ], defaults: './libs/exampledocs/users'      },
          clients: { name: 'clients',    indexes: [ 'clientId' ], defaults: './libs/exampledocs/clients'    },
