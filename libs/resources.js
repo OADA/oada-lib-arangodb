@@ -184,6 +184,11 @@ function lookupFromUrl(url) {
           return {resource_id, path_leftover}
         }
 
+        // Check for a traversal that did not finish (aka not found)
+        if (cursor._result[cursor._result.length-1].vertices[0] === null) {
+          return {resource_id, path_leftover}
+        }
+
         let res =_.reduce(cursor._result, (result, value, key) => {
           if (result.vertices.length > value.vertices.length) return result
           return value
@@ -222,7 +227,12 @@ function getResource(id, path) {
         FILTER r._key == @id
         RETURN r${returnPath}`,
     bindVars
-  });
+  })
+  .catch({
+      isArangoError: true,
+      errorMessage: 'invalid traversal depth (while instantiating plan)'
+    },
+    () => null); // Treat non-existing path has not-found
 }
 
 function upsertMeta(req) {
