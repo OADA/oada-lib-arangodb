@@ -176,30 +176,32 @@ function lookupFromUrl(url) {
         ${filters}
         RETURN p`
     return db.query({query, bindVars})
-  // Handle query output
-    .then((cursor) => {
-      let resource_id = ''
-      let meta_id = ''
-      let path_left = ''
-      if (cursor._result.length < 1) return ({resource_id, meta_id, path_left})
-      let res =_.reduce(cursor._result, (result, value, key) => {
-        if (result.vertices.length > value.vertices.length) return result
-        return value
-      })
-      resource_id = res.vertices[res.vertices.length-1].resource_id;
-      meta_id = res.vertices[res.vertices.length-1].meta_id;
-      // If the desired url has more pieces than the longest path, the path_left is the extra pieces
-      if (res.vertices.length-1 < pieces.length) {
-        let extras = pieces.length - (res.vertices.length-1)
-        path_left = pointer.compile(pieces.slice(0-extras))
-      } else {
-        path_left = res.vertices[res.vertices.length-1].path || ''
-      }
+      .then((cursor) => {
+        let resource_id = ''
+        let meta_id = ''
+        let path_leftover = ''
 
-      return {resource_id, meta_id, path_left}
-    }).catch((err) => {
-      console.log(err)
-    })
+        if (cursor._result.length < 1) {
+          return {resource_id, meta_id, path_leftover}
+        }
+
+        let res =_.reduce(cursor._result, (result, value, key) => {
+          if (result.vertices.length > value.vertices.length) return result
+          return value
+        })
+        resource_id = res.vertices[res.vertices.length-1].resource_id;
+        meta_id = res.vertices[res.vertices.length-1].meta_id;
+        // If the desired url has more pieces than the longest path, the
+        // path_leftover is the extra pieces
+        if (res.vertices.length-1 < pieces.length) {
+          let extras = pieces.length - (res.vertices.length-1)
+          path_leftover = pointer.compile(pieces.slice(0-extras))
+        } else {
+          path_leftover = res.vertices[res.vertices.length-1].path || ''
+        }
+
+        return {resource_id, meta_id, path_leftover}
+      })
   })
 }
 
