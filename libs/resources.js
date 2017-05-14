@@ -178,11 +178,10 @@ function lookupFromUrl(url) {
     return db.query({query, bindVars})
       .then((cursor) => {
         let resource_id = ''
-        let meta_id = ''
         let path_leftover = ''
 
         if (cursor._result.length < 1) {
-          return {resource_id, meta_id, path_leftover}
+          return {resource_id, path_leftover}
         }
 
         let res =_.reduce(cursor._result, (result, value, key) => {
@@ -190,7 +189,6 @@ function lookupFromUrl(url) {
           return value
         })
         resource_id = res.vertices[res.vertices.length-1].resource_id;
-        meta_id = res.vertices[res.vertices.length-1].meta_id;
         // If the desired url has more pieces than the longest path, the
         // path_leftover is the extra pieces
         if (res.vertices.length-1 < pieces.length) {
@@ -200,7 +198,7 @@ function lookupFromUrl(url) {
           path_leftover = res.vertices[res.vertices.length-1].path || ''
         }
 
-        return {resource_id, meta_id, path_leftover}
+        return {resource_id, path_leftover}
       })
   })
 }
